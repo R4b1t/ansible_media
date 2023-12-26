@@ -1,0 +1,29 @@
+---
+- name: Create plex container
+  community.docker.docker_container:
+    name: plex
+    image: plex/plex-ce
+    pull: true
+    state: started
+    restart_policy: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ docker_dir }}/plex/data:/data"
+    security_opts:
+      - no-new-privileges:true
+    networks:
+      - name: homelab
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.plex.entrypoints: "http"
+      traefik.http.routers.plex.rule: "Host(`plex.{{ domain }}`)"
+      traefik.http.middlewares.plex-https-redirect.redirectscheme.scheme: "https"
+      traefik.http.routers.plex.middlewares: "plex-https-redirect"
+      traefik.http.routers.plex-secure.entrypoints: "https"
+      traefik.http.routers.plex-secure.rule: "Host(`plex.{{ domain }}`)"
+      traefik.http.routers.plex-secure.tls: "true"
+      traefik.http.routers.plex-secure.service: "plex"
+      traefik.http.routers.plex-secure.middlewares: "authelia@docker"
+      traefik.http.services.plex.loadbalancer.server.port: ""
+      traefik.docker.network: "homelab"

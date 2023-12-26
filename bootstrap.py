@@ -3,11 +3,6 @@
 import os
 import subprocess
 
-# Clone the repository
-subprocess.run(
-    ['git', 'clone', 'https://github.com/rishavnandi/ansible_homelab.git'])
-os.chdir('ansible_homelab')
-
 # Read user input
 username = input("Enter username: ")
 puid = input("Enter puid of the user: ")
